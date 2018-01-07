@@ -1,0 +1,11 @@
+{
+  "name": "dragon-hacks-2018-dragon-atm",
+  "version": "1.0.0",
+  "description": "DragonHacks Dragon ATM skill",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "alexa-sdk": "^1.0.0"
+  }
+}

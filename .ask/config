@@ -1,0 +1,19 @@
+{
+  "deploy_settings": {
+    "default": {
+      "skill_id": "amzn1.ask.skill.fb9ba074-a046-4c07-a780-2f3b8375d4ad",
+      "was_cloned": false,
+      "merge": {
+        "skillManifest": {
+          "apis": {
+            "custom": {
+              "endpoint": {
+                "uri": "dragon-hacks-2018-dragon-atm"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

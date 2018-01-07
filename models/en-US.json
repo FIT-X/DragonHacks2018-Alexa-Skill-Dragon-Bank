@@ -1,0 +1,55 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "dragon bank",
+      "intents": [
+        {
+          "name": "PurchaseEth",
+          "slots": [
+            {
+              "name": "Amount",
+              "type": "AMAZON.NUMBER"
+            }
+          ],
+          "samples": [
+            "buy {Amount}",
+            "buy {Amount} ether"
+          ]
+        },
+        {
+          "name": "GetWalletBalance",
+          "samples": [
+            "balance",
+            "what is my wallet balance",
+            "how much bitcoin do I have"
+          ]
+        },
+        {
+          "name": "CashOut",
+          "slots": [
+            {
+              "name": "Amount",
+              "type": "AMAZON.NUMBER"
+            }
+          ],
+          "samples": [
+            "sell {Amount}",
+            "sell {Amount} bitcoin"
+          ]
+        },
+        {
+          "name": "AMAZON.RepeatIntent"
+        },
+        {
+          "name": "AMAZON.HelpIntent"
+        },
+        {
+          "name": "AMAZON.StopIntent"
+        },
+        {
+          "name": "AMAZON.CancelIntent"
+        }
+      ]
+    }
+  }
+}
