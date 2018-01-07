@@ -8,9 +8,14 @@
  * as testing instructions are located at https://github.com/alexa/skill-sample-nodejs-howto
  **/
 
+
+const SERVICE_HOST = 'a2299132.ngrok.io';
+const PORT = 80;
+
 'use strict';
 
 const Alexa = require('alexa-sdk');
+const http = require('http');
 
 const APP_ID = undefined; // TODO replace with your app ID (OPTIONAL).
 
@@ -43,15 +48,95 @@ const handlers = {
     },
     'CashOut': function () {
         const amount = this.event.request.intent.slots.Amount.value;
-        this.attributes.speechOutput = `You have sold ${amount} bitcoin.`;
+        this.attributes.speechOutput = `Starting transaction to sell ${amount} bitcoin. Please scan your mobile device, finger print and smile for a picture`;
+
         this.response.speak(this.attributes.speechOutput);
         this.emit(':responseReady');
+        var options = {
+            host: SERVICE_HOST,
+            port: PORT,
+            path: '/api/sellbtc',
+            method: 'PUT'
+        };
 
+        var req = http.request(options, function (res) {
+            console.log('STATUS: ' + res.statusCode);
+        });
+
+        req.on('error', function (e) {
+            console.log('problem with request: ' + e.message);
+            _this.response.speak('I\'m sorry. There was an request error.');
+            _this.emit(':responseReady');
+        });
+
+        // write data to request body
+        req.write(JSON.stringify({
+            amount: amount
+        }));
+        req.end();
     },
     'GetWalletBalance': function () {
-        this.attributes.speechOutput = 'You have no bitcoin';
-        this.response.speak(this.attributes.speechOutput);
-        this.emit(':responseReady');
+        var _this = this;
+
+        var usd = 0;
+        var https = require('https');
+        var req = https.get("https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=ETH,USD", function (res) {
+            console.log('STATUS: ' + res.statusCode);
+            // console.log('HEADERS: ' + JSON.stringify(res.headers));
+            res.on('data', function (chunk) {
+                console.log('BODY: ' + chunk);
+                try {
+                    const body = JSON.parse(chunk);
+                    usd = body.USD;
+                    requestWallet();
+                } catch (err) {
+                    console.log(err);
+                    _this.response.speak('I\'m sorry. The body could not be parsed.');
+                    _this.emit(':responseReady');
+                }
+            });
+        });
+        req.end();
+
+        function requestWallet() {
+            var options = {
+                host: SERVICE_HOST,
+                port: PORT,
+                path: '/api/getWallet',
+                method: 'GET'
+            };
+
+            var req = http.request(options, function (res) {
+                console.log('STATUS: ' + res.statusCode);
+                // console.log('HEADERS: ' + JSON.stringify(res.headers));
+                res.setEncoding('utf8');
+                res.on('data', function (chunk) {
+                    console.log('BODY: ' + chunk);
+                    try {
+                        const body = JSON.parse(chunk);
+                        _this.attributes.speechOutput = `You have ${body.bitcoin ? body.bitcoin : 'no'} bitcoin, which is ${usd * body.bitcoin} USD.`;
+                        _this.response.speak(_this.attributes.speechOutput);
+                        _this.emit(':responseReady');
+                    } catch (err) {
+                        console.log(err);
+                        _this.response.speak('I\'m sorry. The body could not be parsed.');
+                        _this.emit(':responseReady');
+                    }
+                });
+            });
+
+            req.on('error', function (e) {
+                console.log('problem with request: ' + e.message);
+                _this.response.speak('I\'m sorry. There was an request error.');
+                _this.emit(':responseReady');
+            });
+
+            // write data to request body
+            // req.write('data\n');
+            // req.write('data\n');
+            req.end();
+        }
+
     },
     'PurchaseEth': function () {
         const amount = this.event.request.intent.slots.Amount.value;
